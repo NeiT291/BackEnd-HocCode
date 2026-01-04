@@ -28,6 +28,7 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/class/**",
             "/api/v1/course/**",
+            "/api/v1/contest/**",
             "/api/v1/course-module/**",
             "/api/v1/lessons/**",
             "/api/v1/problems/**",
@@ -81,6 +82,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin("http://localhost:5173");
         config.addAllowedOrigin("http://127.0.0.1:5501");
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");

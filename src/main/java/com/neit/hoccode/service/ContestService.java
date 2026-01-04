@@ -2,6 +2,8 @@ package com.neit.hoccode.service;
 
 import com.neit.hoccode.dto.request.ContestRequest;
 import com.neit.hoccode.dto.response.ContestResponse;
+import com.neit.hoccode.dto.response.CourseResponse;
+import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.dto.response.UserResponse;
 import com.neit.hoccode.entity.Contest;
 import com.neit.hoccode.entity.ContestRegistration;
@@ -9,29 +11,35 @@ import com.neit.hoccode.entity.User;
 import com.neit.hoccode.exception.AppException;
 import com.neit.hoccode.exception.ErrorCode;
 import com.neit.hoccode.mapper.ContestMapper;
+import com.neit.hoccode.mapper.ResultPaginationMapper;
 import com.neit.hoccode.mapper.UserMapper;
 import com.neit.hoccode.repository.ContestRegistrationRepository;
 import com.neit.hoccode.repository.ContestRepository;
 import com.neit.hoccode.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ContestService {
     private final ContestRepository contestRepository;
     private final ContestMapper contestMapper;
     private final UserRepository userRepository;
+    private final ResultPaginationMapper resultPaginationMapper;
     private final ContestRegistrationRepository contestRegistrationRepository;
     private final UserMapper userMapper;
 
-    public ContestService(ContestRepository contestRepository, ContestMapper contestMapper, UserRepository userRepository, ContestRegistrationRepository contestRegistrationRepository, UserMapper userMapper) {
+    public ContestService(ContestRepository contestRepository, ContestMapper contestMapper, UserRepository userRepository, ResultPaginationMapper resultPaginationMapper, ContestRegistrationRepository contestRegistrationRepository, UserMapper userMapper) {
         this.contestRepository = contestRepository;
         this.contestMapper = contestMapper;
         this.userRepository = userRepository;
+        this.resultPaginationMapper = resultPaginationMapper;
         this.contestRegistrationRepository = contestRegistrationRepository;
         this.userMapper = userMapper;
     }
@@ -86,5 +94,10 @@ public class ContestService {
             return contestRegistration ;
         }
         return contestRegistrationRepository.save(ContestRegistration.builder().contest(contest).user(user).registeredAt(LocalDateTime.now()).build());
+    }
+    public ResultPaginationResponse getAll(Optional<Integer> page, Optional<Integer> pageSize){
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+        Page<ContestResponse> contestPage = contestRepository.findAll(pageable).map(contestMapper::toContestResponse);
+        return resultPaginationMapper.toResultPaginationResponse(contestPage);
     }
 }

@@ -1,34 +1,42 @@
 package com.neit.hoccode.service;
 
 import com.neit.hoccode.dto.request.ProblemRequest;
+import com.neit.hoccode.dto.response.ContestResponse;
 import com.neit.hoccode.dto.response.ProblemResponse;
+import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.entity.Problem;
 import com.neit.hoccode.entity.User;
 import com.neit.hoccode.exception.AppException;
 import com.neit.hoccode.exception.ErrorCode;
 import com.neit.hoccode.mapper.ProblemMapper;
+import com.neit.hoccode.mapper.ResultPaginationMapper;
 import com.neit.hoccode.repository.ContestRepository;
 import com.neit.hoccode.repository.CourseModuleRepository;
 import com.neit.hoccode.repository.ProblemRepository;
 import com.neit.hoccode.repository.UserRepository;
 import com.neit.hoccode.utils.MergeObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class ProblemService {
     private final ProblemRepository problemRepository;
     private final ProblemMapper problemMapper;
     private final UserRepository userRepository;
+    private final ResultPaginationMapper resultPaginationMapper;
     private final CourseModuleRepository courseModuleRepository;
     private final ContestRepository contestRepository;
 
-    public ProblemService(ProblemRepository problemRepository, ProblemMapper problemMapper, UserRepository userRepository, CourseModuleRepository courseModuleRepository, ContestRepository contestRepository) {
+    public ProblemService(ProblemRepository problemRepository, ProblemMapper problemMapper, UserRepository userRepository, ResultPaginationMapper resultPaginationMapper, CourseModuleRepository courseModuleRepository, ContestRepository contestRepository) {
         this.problemRepository = problemRepository;
         this.problemMapper = problemMapper;
         this.userRepository = userRepository;
+        this.resultPaginationMapper = resultPaginationMapper;
         this.courseModuleRepository = courseModuleRepository;
         this.contestRepository = contestRepository;
     }
@@ -62,5 +70,10 @@ public class ProblemService {
 
     public ProblemResponse getBySlug(String slug) {
         return problemMapper.toProblemResponse(problemRepository.findBySlug(slug).orElseThrow(()->new AppException(ErrorCode.PROBLEM_NOT_FOUND)));
+    }
+    public ResultPaginationResponse getAll(Optional<Integer> page, Optional<Integer> pageSize){
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+        Page<ProblemResponse> problemPage = problemRepository.findAll(pageable).map(problemMapper::toProblemResponse);
+        return resultPaginationMapper.toResultPaginationResponse(problemPage);
     }
 }

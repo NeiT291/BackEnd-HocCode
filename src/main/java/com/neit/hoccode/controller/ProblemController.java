@@ -5,6 +5,7 @@ import com.neit.hoccode.dto.request.ProblemRequest;
 import com.neit.hoccode.dto.request.ProblemTestcaseRequest;
 import com.neit.hoccode.dto.request.SubmissionRequest;
 import com.neit.hoccode.dto.response.ProblemResponse;
+import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.entity.CourseModule;
 import com.neit.hoccode.entity.JudgeResult;
 import com.neit.hoccode.entity.Problem;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/problems")
@@ -44,6 +46,10 @@ public class ProblemController {
     @GetMapping("/get-by-sulg")
     public ApiResponse<ProblemResponse> modifyCourseModule(@RequestParam String slug){
         return ApiResponse.<ProblemResponse>builder().data(problemService.getBySlug(slug)).build();
+    }
+    @GetMapping("/get-all")
+    public ApiResponse<ResultPaginationResponse> getAll(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
+        return ApiResponse.<ResultPaginationResponse>builder().data(problemService.getAll(page, pageSize)).build();
     }
     @PostMapping("/add-testcase")
     public ApiResponse<ProblemTestcase> addTestcase(@RequestBody ProblemTestcaseRequest request){
