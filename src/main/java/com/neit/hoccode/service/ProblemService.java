@@ -67,7 +67,9 @@ public class ProblemService {
         MergeObject.mergeIgnoreNull(problemMapper.toProblem(request), problem);
         return problemMapper.toProblemResponse(problemRepository.save(problem));
     }
-
+    public ProblemResponse getById(Integer id) {
+        return problemMapper.toProblemResponse(problemRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.PROBLEM_NOT_FOUND)));
+    }
     public ProblemResponse getBySlug(String slug) {
         return problemMapper.toProblemResponse(problemRepository.findBySlug(slug).orElseThrow(()->new AppException(ErrorCode.PROBLEM_NOT_FOUND)));
     }

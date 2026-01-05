@@ -43,6 +43,10 @@ public class ProblemController {
     public ApiResponse<ProblemResponse> modifyProblem(@RequestBody ProblemRequest request){
         return ApiResponse.<ProblemResponse>builder().data(problemService.modifyProblem(request)).build();
     }
+    @GetMapping("/get-by-id")
+    public ApiResponse<ProblemResponse> modifyCourseModule(@RequestParam Integer id){
+        return ApiResponse.<ProblemResponse>builder().data(problemService.getById(id)).build();
+    }
     @GetMapping("/get-by-sulg")
     public ApiResponse<ProblemResponse> modifyCourseModule(@RequestParam String slug){
         return ApiResponse.<ProblemResponse>builder().data(problemService.getBySlug(slug)).build();
