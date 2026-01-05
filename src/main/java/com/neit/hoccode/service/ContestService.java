@@ -100,4 +100,14 @@ public class ContestService {
         Page<ContestResponse> contestPage = contestRepository.findAll(pageable).map(contestMapper::toContestResponse);
         return resultPaginationMapper.toResultPaginationResponse(contestPage);
     }
+    public ResultPaginationResponse getByTitle(String title, Optional<Integer> page, Optional<Integer> pageSize){
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+
+        String[] words = title.split(" ");
+        title = String.join(" ", words);
+
+        Page<ContestResponse> companyPage = contestRepository.findByTitleIgnoreCaseContaining(title, pageable).map(contestMapper::toContestResponse);
+
+        return resultPaginationMapper.toResultPaginationResponse(companyPage);
+    }
 }

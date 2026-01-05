@@ -70,4 +70,13 @@ public class CourseController {
         courseService.outCourse(courseId);
         return ApiResponse.builder().build();
     }
+    @GetMapping("/search")
+    public ApiResponse<ResultPaginationResponse> getByName(@RequestParam String title,
+                                                           @RequestParam("page") Optional<Integer> page,
+                                                           @RequestParam("pageSize") Optional<Integer> pageSize
+    ) {
+        ApiResponse<ResultPaginationResponse> response = new ApiResponse<>();
+        response.setData(courseService.getByTitle(title, page, pageSize));
+        return response;
+    }
 }

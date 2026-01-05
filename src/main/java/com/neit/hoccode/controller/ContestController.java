@@ -43,4 +43,13 @@ public class ContestController {
     public ApiResponse<ContestRegistration> enroll(@RequestParam Integer contestId){
         return ApiResponse.<ContestRegistration>builder().data(contestService.enroll(contestId)).build();
     }
+    @GetMapping("/search")
+    public ApiResponse<ResultPaginationResponse> getByName(@RequestParam String title,
+                                                           @RequestParam("page") Optional<Integer> page,
+                                                           @RequestParam("pageSize") Optional<Integer> pageSize
+    ) {
+        ApiResponse<ResultPaginationResponse> response = new ApiResponse<>();
+        response.setData(contestService.getByTitle(title, page, pageSize));
+        return response;
+    }
 }

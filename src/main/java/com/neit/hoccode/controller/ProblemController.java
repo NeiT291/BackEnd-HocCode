@@ -48,8 +48,8 @@ public class ProblemController {
         return ApiResponse.<ProblemResponse>builder().data(problemService.getBySlug(slug)).build();
     }
     @GetMapping("/get-all")
-    public ApiResponse<ResultPaginationResponse> getAll(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
-        return ApiResponse.<ResultPaginationResponse>builder().data(problemService.getAll(page, pageSize)).build();
+    public ApiResponse<ResultPaginationResponse> getAll(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize, @RequestParam(required = false) String difficulty){
+        return ApiResponse.<ResultPaginationResponse>builder().data(problemService.getAll(page, pageSize, difficulty)).build();
     }
     @PostMapping("/add-testcase")
     public ApiResponse<ProblemTestcase> addTestcase(@RequestBody ProblemTestcaseRequest request){
@@ -62,5 +62,14 @@ public class ProblemController {
     @PostMapping("/submission")
     public ApiResponse<JudgeResult> submission(@RequestBody SubmissionRequest request){
         return ApiResponse.<JudgeResult>builder().data(submissionService.submission(request)).build();
+    }
+    @GetMapping("/search")
+    public ApiResponse<ResultPaginationResponse> getByName(@RequestParam String title,
+                                                           @RequestParam("page") Optional<Integer> page,
+                                                           @RequestParam("pageSize") Optional<Integer> pageSize
+    ) {
+        ApiResponse<ResultPaginationResponse> response = new ApiResponse<>();
+        response.setData(problemService.getByTitle(title, page, pageSize));
+        return response;
     }
 }

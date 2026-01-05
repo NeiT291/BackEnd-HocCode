@@ -1,7 +1,7 @@
 package com.neit.hoccode.service;
 
 import com.neit.hoccode.dto.request.ProblemRequest;
-import com.neit.hoccode.dto.response.ContestResponse;
+import com.neit.hoccode.dto.response.CourseResponse;
 import com.neit.hoccode.dto.response.ProblemResponse;
 import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.entity.Problem;
@@ -71,9 +71,24 @@ public class ProblemService {
     public ProblemResponse getBySlug(String slug) {
         return problemMapper.toProblemResponse(problemRepository.findBySlug(slug).orElseThrow(()->new AppException(ErrorCode.PROBLEM_NOT_FOUND)));
     }
-    public ResultPaginationResponse getAll(Optional<Integer> page, Optional<Integer> pageSize){
+    public ResultPaginationResponse getAll(Optional<Integer> page, Optional<Integer> pageSize, String difficulty){
         Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
-        Page<ProblemResponse> problemPage = problemRepository.findAll(pageable).map(problemMapper::toProblemResponse);
+        Page<ProblemResponse> problemPage;
+        if (difficulty == null){
+            problemPage = problemRepository.findAll(pageable).map(problemMapper::toProblemResponse);
+        }else{
+            problemPage = problemRepository.findAllByDifficulty(pageable, difficulty).map(problemMapper::toProblemResponse);
+        }
         return resultPaginationMapper.toResultPaginationResponse(problemPage);
+    }
+    public ResultPaginationResponse getByTitle(String title, Optional<Integer> page, Optional<Integer> pageSize){
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+
+        String[] words = title.split(" ");
+        title = String.join(" ", words);
+
+        Page<ProblemResponse> companyPage = problemRepository.findByTitleIgnoreCaseContaining(title, pageable).map(problemMapper::toProblemResponse);
+
+        return resultPaginationMapper.toResultPaginationResponse(companyPage);
     }
 }

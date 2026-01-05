@@ -121,4 +121,14 @@ public class CourseService {
         Page<CourseResponse> coursePage = courseRepository.findAll(pageable).map(courseMapper::toCourseResponse);
         return resultPaginationMapper.toResultPaginationResponse(coursePage);
     }
+    public ResultPaginationResponse getByTitle(String title, Optional<Integer> page, Optional<Integer> pageSize){
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+
+        String[] words = title.split(" ");
+        title = String.join(" ", words);
+
+        Page<CourseResponse> companyPage = courseRepository.findByTitleIgnoreCaseContaining(title, pageable).map(courseMapper::toCourseResponse);
+
+        return resultPaginationMapper.toResultPaginationResponse(companyPage);
+    }
 }

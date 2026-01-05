@@ -4,10 +4,13 @@ package com.neit.hoccode.controller;
 import com.neit.hoccode.dto.ApiResponse;
 import com.neit.hoccode.dto.request.ClassRequest;
 import com.neit.hoccode.dto.response.ClassResponse;
+import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.service.ClassService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/class")
@@ -38,5 +41,17 @@ public class ClassController {
         classService.outClass(classId);
         return ApiResponse.builder().build();
     }
-
+    @GetMapping("/get-all")
+    public ApiResponse<ResultPaginationResponse> getAll(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
+        return ApiResponse.<ResultPaginationResponse>builder().data(classService.getAll(page, pageSize)).build();
+    }
+    @GetMapping("/search")
+    public ApiResponse<ResultPaginationResponse> getByName(@RequestParam String title,
+                                                           @RequestParam("page") Optional<Integer> page,
+                                                           @RequestParam("pageSize") Optional<Integer> pageSize
+    ) {
+        ApiResponse<ResultPaginationResponse> response = new ApiResponse<>();
+        response.setData(classService.getByTitle(title, page, pageSize));
+        return response;
+    }
 }
