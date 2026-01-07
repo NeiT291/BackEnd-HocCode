@@ -19,6 +19,8 @@ public class Contest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    private String thumbnailUrl;
+
     @Column(columnDefinition = "text", nullable = false)
     private String title;
 

@@ -14,6 +14,7 @@ import java.util.List;
 @Builder
 public class CourseResponse {
     private Integer id;
+    private String thumbnailUrl;
     private String title;
     private String slug;
     private String description;

@@ -14,15 +14,18 @@ import com.neit.hoccode.repository.CourseEnrollmentRepository;
 import com.neit.hoccode.repository.CourseRepository;
 import com.neit.hoccode.repository.UserRepository;
 import com.neit.hoccode.utils.MergeObject;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class CourseService {
     private final CourseMapper courseMapper;
@@ -31,14 +34,16 @@ public class CourseService {
     private final ResultPaginationMapper resultPaginationMapper;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final ClassRepository classRepository;
+    private final MinioService minioService;
 
-    public CourseService(CourseMapper courseMapper, CourseRepository courseRepository, UserRepository userRepository, ResultPaginationMapper resultPaginationMapper, CourseEnrollmentRepository courseEnrollmentRepository, ClassRepository classRepository) {
+    public CourseService(CourseMapper courseMapper, CourseRepository courseRepository, UserRepository userRepository, ResultPaginationMapper resultPaginationMapper, CourseEnrollmentRepository courseEnrollmentRepository, ClassRepository classRepository, MinioService minioService) {
         this.courseMapper = courseMapper;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.resultPaginationMapper = resultPaginationMapper;
         this.courseEnrollmentRepository = courseEnrollmentRepository;
         this.classRepository = classRepository;
+        this.minioService = minioService;
     }
 
     public CourseResponse addCourse(CourseRequest request){
@@ -130,5 +135,25 @@ public class CourseService {
         Page<CourseResponse> companyPage = courseRepository.findByTitleIgnoreCaseContaining(title, pageable).map(courseMapper::toCourseResponse);
 
         return resultPaginationMapper.toResultPaginationResponse(companyPage);
+    }
+
+    public Void setThumbnail(Integer courseId, MultipartFile thumbnail) {
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Course course = courseRepository.findById(courseId).orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        try{
+            String objectName = minioService.uploadImage(thumbnail);
+            String url = "http://localhost:9000/hoccode/" + objectName;
+            course.setThumbnailUrl(url);
+            courseRepository.save(course);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
     }
 }
