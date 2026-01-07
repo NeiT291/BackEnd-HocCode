@@ -14,4 +14,5 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     Optional<Course> findBySlug(String slug);
     Course getBySlug(String slug);
     Page<Course> findByTitleIgnoreCaseContaining(String title, Pageable pageable);
+    Page<Course> findByOwnerId(String id, Pageable pageable);
 }

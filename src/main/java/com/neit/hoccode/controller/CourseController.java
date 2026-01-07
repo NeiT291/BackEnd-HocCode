@@ -1,19 +1,11 @@
 package com.neit.hoccode.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.neit.hoccode.dto.ApiResponse;
-import com.neit.hoccode.dto.request.CourseModuleRequest;
 import com.neit.hoccode.dto.request.CourseRequest;
-import com.neit.hoccode.dto.request.LessonRequest;
 import com.neit.hoccode.dto.response.CourseResponse;
 import com.neit.hoccode.dto.response.ResultPaginationResponse;
-import com.neit.hoccode.entity.Course;
 import com.neit.hoccode.entity.CourseEnrollment;
-import com.neit.hoccode.entity.CourseModule;
-import com.neit.hoccode.entity.Lesson;
-import com.neit.hoccode.service.CourseModuleService;
 import com.neit.hoccode.service.CourseService;
-import com.neit.hoccode.service.LessonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -58,6 +50,10 @@ public class CourseController {
             summary = "Lấy thông tin khóa học bằng slug",
             description = "API trả về thông tin khóa học theo slug"
     )
+    @GetMapping("/get-by-id")
+    public ApiResponse<CourseResponse> getCourseById(@RequestParam Integer id){
+        return ApiResponse.<CourseResponse>builder().data(courseService.getCourseById(id)).build();
+    }
     @GetMapping("/get-by-slug")
     public ApiResponse<CourseResponse> getCourseBySlug(@RequestParam String slug){
         return ApiResponse.<CourseResponse>builder().data(courseService.getCourseBySlug(slug)).build();
@@ -66,11 +62,11 @@ public class CourseController {
     public ApiResponse<ResultPaginationResponse> getAll(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
         return ApiResponse.<ResultPaginationResponse>builder().data(courseService.getAll(page, pageSize)).build();
     }
-    @GetMapping("/enroll")
+    @PostMapping("/enroll")
     public ApiResponse<CourseEnrollment> enRoll(@RequestParam Integer courseId){
         return ApiResponse.<CourseEnrollment>builder().data(courseService.enRoll(courseId)).build();
     }
-    @GetMapping("/out-course")
+    @PostMapping("/out-course")
     public ApiResponse<?> outCourse(@RequestParam Integer courseId){
         courseService.outCourse(courseId);
         return ApiResponse.builder().build();
@@ -83,5 +79,17 @@ public class CourseController {
         ApiResponse<ResultPaginationResponse> response = new ApiResponse<>();
         response.setData(courseService.getByTitle(title, page, pageSize));
         return response;
+    }
+    @GetMapping("/is-join")
+    public ApiResponse<CourseEnrollment> isJoin(@RequestParam Integer courseId){
+        return ApiResponse.<CourseEnrollment>builder().data(courseService.isJoin(courseId)).build();
+    }
+    @GetMapping("/get-course-created")
+    public ApiResponse<ResultPaginationResponse> getCourseCreated(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
+        return ApiResponse.<ResultPaginationResponse>builder().data(courseService.getCourseCreated(page, pageSize)).build();
+    }
+    @GetMapping("/get-course-joined")
+    public ApiResponse<ResultPaginationResponse> getCourseJoined(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
+        return ApiResponse.<ResultPaginationResponse>builder().data(courseService.getCourseJoined(page, pageSize)).build();
     }
 }

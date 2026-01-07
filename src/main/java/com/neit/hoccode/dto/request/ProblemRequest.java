@@ -21,5 +21,6 @@ public class ProblemRequest {
     private Integer memoryLimitKb;
     private String difficulty;
     private Boolean isPublic;
+    private Boolean isTheory;
     private List<ProblemTestcase> testcases = new ArrayList<>();
 }

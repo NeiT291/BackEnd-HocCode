@@ -8,6 +8,7 @@ import com.neit.hoccode.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -37,5 +38,9 @@ public class UserController {
         return ApiResponse.<UserResponse>builder()
                 .data(userService.updateInfo(request))
                 .build();
+    }
+    @PostMapping("/set-avatar")
+    public ApiResponse<Void> setThumbnail(@RequestParam("avatar") MultipartFile avatar){
+        return ApiResponse.<Void>builder().data(userService.setAvatar(avatar)).build();
     }
 }

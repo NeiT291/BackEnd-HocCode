@@ -3,6 +3,7 @@ package com.neit.hoccode.service;
 import com.neit.hoccode.dto.request.RegisterRequest;
 import com.neit.hoccode.dto.request.UpdateUserRequest;
 import com.neit.hoccode.dto.response.UserResponse;
+import com.neit.hoccode.entity.Contest;
 import com.neit.hoccode.entity.Role;
 import com.neit.hoccode.entity.User;
 import com.neit.hoccode.exception.AppException;
@@ -13,6 +14,7 @@ import com.neit.hoccode.utils.MergeObject;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -23,11 +25,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final MinioService minioService;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, MinioService minioService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.minioService = minioService;
     }
 
     public UserResponse register(RegisterRequest request) {
@@ -64,5 +68,24 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
     public void getAllUser(){
+    }
+
+    public Void setAvatar(MultipartFile avatar) {
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        try{
+            String objectName = minioService.uploadImage(avatar);
+            String url = "http://localhost:9000/hoccode/" + objectName;
+            user.setAvatarUrl(url);
+            userRepository.save(user);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
     }
 }

@@ -9,6 +9,7 @@ import com.neit.hoccode.service.ContestService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -51,5 +52,9 @@ public class ContestController {
         ApiResponse<ResultPaginationResponse> response = new ApiResponse<>();
         response.setData(contestService.getByTitle(title, page, pageSize));
         return response;
+    }
+    @PostMapping("/set-thumbnail")
+    public ApiResponse<Void> setThumbnail(@RequestParam Integer contestId,@RequestParam("thumbnail") MultipartFile thumbnail){
+        return ApiResponse.<Void>builder().data(contestService.setThumbnail(contestId, thumbnail)).build();
     }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 public class ContestResponse {
     private Integer id;
+    private String thumbnailUrl;
     private String title;
     private String slug;
     private String description;

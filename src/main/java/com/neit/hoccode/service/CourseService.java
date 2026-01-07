@@ -69,14 +69,6 @@ public class CourseService {
         for(CourseModule module : modules){
             module.setCourse(course);
             module.setCreatedAt(LocalDateTime.now());
-
-            List<Lesson> lessons = module.getLessons();
-            for(Lesson lesson: lessons){
-                lesson.setModule(module);
-                lesson.setCreatedAt(LocalDateTime.now());
-            }
-
-            module.setLessons(lessons);
         }
         request.setModules(modules);
 
@@ -108,6 +100,10 @@ public class CourseService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Course course = courseRepository.findById(courseId).orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        CourseEnrollment courseEnrollment = courseEnrollmentRepository.findByCourseIdAndUserId(course.getId(), user.getId());
+        if (courseEnrollment != null){
+            return courseEnrollment;
+        }
         return courseEnrollmentRepository.save(CourseEnrollment.builder().user(user).course(course).enrolledAt(LocalDateTime.now()).build());
     }
     public void outCourse(int courseId){
@@ -116,8 +112,8 @@ public class CourseService {
                         .getAuthentication()
                         .getName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        CourseEnrollment courseEnrollment = courseEnrollmentRepository.findByCourseId(courseId);
-        if(courseEnrollment != null && courseEnrollment.getUser() == user){
+        CourseEnrollment courseEnrollment = courseEnrollmentRepository.findByCourseIdAndUserId(courseId, user.getId());
+        if(courseEnrollment != null ){
             courseEnrollmentRepository.delete(courseEnrollment);
         }
     }
@@ -132,9 +128,9 @@ public class CourseService {
         String[] words = title.split(" ");
         title = String.join(" ", words);
 
-        Page<CourseResponse> companyPage = courseRepository.findByTitleIgnoreCaseContaining(title, pageable).map(courseMapper::toCourseResponse);
+        Page<CourseResponse> coursePage = courseRepository.findByTitleIgnoreCaseContaining(title, pageable).map(courseMapper::toCourseResponse);
 
-        return resultPaginationMapper.toResultPaginationResponse(companyPage);
+        return resultPaginationMapper.toResultPaginationResponse(coursePage);
     }
 
     public Void setThumbnail(Integer courseId, MultipartFile thumbnail) {
@@ -155,5 +151,39 @@ public class CourseService {
         }
 
         return null;
+    }
+
+    public CourseResponse getCourseById(Integer id) {
+        return courseMapper.toCourseResponse(courseRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND)));
+    }
+    public CourseEnrollment isJoin(Integer id){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Course course = courseRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        return courseEnrollmentRepository.findByCourseIdAndUserId(course.getId(), user.getId());
+    }
+    public ResultPaginationResponse getCourseCreated(Optional<Integer> page, Optional<Integer> pageSize){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+        Page<CourseResponse> coursePage = courseRepository.findByOwnerId(user.getId(), pageable).map(courseMapper::toCourseResponse);
+        return resultPaginationMapper.toResultPaginationResponse(coursePage);
+    }
+    public ResultPaginationResponse getCourseJoined(Optional<Integer> page, Optional<Integer> pageSize){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+        Page<CourseEnrollment> courseEnrollments = courseEnrollmentRepository.findByUserId(user.getId(), pageable);
+        Page<CourseResponse> coursePage = courseEnrollments.map(CourseEnrollment::getCourse).map(courseMapper::toCourseResponse);
+        return resultPaginationMapper.toResultPaginationResponse(coursePage);
     }
 }

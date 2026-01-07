@@ -27,6 +27,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/class/**",
+            "/api/v1/run-code/**",
             "/api/v1/course/**",
             "/api/v1/contest/**",
             "/api/v1/course-module/**",

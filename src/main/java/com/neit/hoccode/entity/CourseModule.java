@@ -31,8 +31,5 @@ public class CourseModule {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
-    private List<Lesson> lessons = new ArrayList<>();
-
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     private List<Problem> problems = new ArrayList<>();
 }

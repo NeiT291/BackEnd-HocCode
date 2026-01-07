@@ -34,7 +34,6 @@ public class CourseModuleService {
                 .title(request.getTitle())
                 .course(course)
                 .position(request.getPosition())
-                .lessons(request.getLessons())
                 .createdAt(LocalDateTime.now())
                 .build()));
     }

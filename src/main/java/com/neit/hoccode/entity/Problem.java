@@ -53,6 +53,9 @@ public class Problem {
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Builder.Default
+    private Boolean isTheory = true;
+
     @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL)
     private List<ProblemTestcase> testcases = new ArrayList<>();
 
