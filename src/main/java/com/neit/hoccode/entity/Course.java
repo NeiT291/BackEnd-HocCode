@@ -24,7 +24,7 @@ public class Course {
     @Column(columnDefinition = "text", nullable = false)
     private String title;
 
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(unique = true)
     private String slug;
 
     @Column(columnDefinition = "text")

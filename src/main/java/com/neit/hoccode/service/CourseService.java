@@ -76,9 +76,6 @@ public class CourseService {
     }
     public CourseResponse modifyCourse(CourseRequest request) {
         Course course = courseRepository.findById(request.getId()).orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
-        if(courseRepository.getBySlug(request.getSlug()) != null && !courseRepository.getBySlug(request.getSlug()).equals(course)){
-            throw new AppException(ErrorCode.COURSE_SLUG_EXISTED);
-        };
 
         course.setTitle(request.getTitle());
         course.setSlug(request.getSlug());
