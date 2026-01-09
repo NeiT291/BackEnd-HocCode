@@ -21,7 +21,6 @@ public class Problem {
     @Column(columnDefinition = "text", nullable = false)
     private String title;
 
-    @Column(nullable = false, unique = true, length = 255)
     private String slug;
 
     @Column(columnDefinition = "text")

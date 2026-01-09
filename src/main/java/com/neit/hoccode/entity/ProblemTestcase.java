@@ -16,7 +16,7 @@ public class ProblemTestcase {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "problem_id", nullable = false)
+    @JoinColumn(name = "problem_id")
     @JsonIgnore
     private Problem problem;
 
@@ -31,4 +31,7 @@ public class ProblemTestcase {
 
     @Builder.Default
     private Integer position = 0;
+
+    @Builder.Default
+    private boolean isActive = true;
 }

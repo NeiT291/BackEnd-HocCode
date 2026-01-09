@@ -45,6 +45,7 @@ public class ClassController {
     public ApiResponse<ResultPaginationResponse> getAll(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
         return ApiResponse.<ResultPaginationResponse>builder().data(classService.getAll(page, pageSize)).build();
     }
+
     @GetMapping("/search")
     public ApiResponse<ResultPaginationResponse> getByName(@RequestParam String title,
                                                            @RequestParam("page") Optional<Integer> page,
@@ -53,5 +54,13 @@ public class ClassController {
         ApiResponse<ResultPaginationResponse> response = new ApiResponse<>();
         response.setData(classService.getByTitle(title, page, pageSize));
         return response;
+    }
+    @GetMapping("/get-created")
+    public ApiResponse<ResultPaginationResponse> getCreated(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
+        return ApiResponse.<ResultPaginationResponse>builder().data(classService.getCreated(page, pageSize)).build();
+    }
+    @GetMapping("/get-joined")
+    public ApiResponse<ResultPaginationResponse> getCourseJoined(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
+        return ApiResponse.<ResultPaginationResponse>builder().data(classService.getJoined(page, pageSize)).build();
     }
 }

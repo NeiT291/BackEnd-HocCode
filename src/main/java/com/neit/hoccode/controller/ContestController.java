@@ -57,4 +57,12 @@ public class ContestController {
     public ApiResponse<Void> setThumbnail(@RequestParam Integer contestId,@RequestParam("thumbnail") MultipartFile thumbnail){
         return ApiResponse.<Void>builder().data(contestService.setThumbnail(contestId, thumbnail)).build();
     }
+    @GetMapping("/get-created")
+    public ApiResponse<ResultPaginationResponse> getCreated(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
+        return ApiResponse.<ResultPaginationResponse>builder().data(contestService.getCreated(page, pageSize)).build();
+    }
+    @GetMapping("/get-joined")
+    public ApiResponse<ResultPaginationResponse> getCourseJoined(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
+        return ApiResponse.<ResultPaginationResponse>builder().data(contestService.getJoined(page, pageSize)).build();
+    }
 }

@@ -19,6 +19,7 @@ public class ProblemRequest {
     private Integer moduleId;
     private Integer timeLimitMs;
     private Integer memoryLimitKb;
+    private Integer position;
     private String difficulty;
     private Boolean isPublic;
     private Boolean isTheory;

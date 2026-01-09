@@ -1,10 +1,12 @@
 package com.neit.hoccode.service;
 
 import com.neit.hoccode.dto.request.ProblemRequest;
+import com.neit.hoccode.dto.response.ContestResponse;
 import com.neit.hoccode.dto.response.CourseResponse;
 import com.neit.hoccode.dto.response.ProblemResponse;
 import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.entity.Problem;
+import com.neit.hoccode.entity.ProblemTestcase;
 import com.neit.hoccode.entity.User;
 import com.neit.hoccode.exception.AppException;
 import com.neit.hoccode.exception.ErrorCode;
@@ -58,13 +60,20 @@ public class ProblemService {
         }
         problem.setCreatedAt(LocalDateTime.now());
         problem.setCreatedBy(user);
-
+        for (ProblemTestcase testcase : problem.getTestcases()){
+            testcase.setProblem(problem);
+        }
         return problemMapper.toProblemResponse(problemRepository.save(problem));
     }
     public ProblemResponse modifyProblem(ProblemRequest request){
         Problem problem = problemRepository.findById(request.getId()).orElseThrow(()->new AppException(ErrorCode.PROBLEM_NOT_FOUND));
 
         MergeObject.mergeIgnoreNull(problemMapper.toProblem(request), problem);
+
+        for (ProblemTestcase testcase: request.getTestcases()){
+            testcase.setProblem(problem);
+        }
+
         return problemMapper.toProblemResponse(problemRepository.save(problem));
     }
     public ProblemResponse getById(Integer id) {
@@ -92,5 +101,16 @@ public class ProblemService {
         Page<ProblemResponse> companyPage = problemRepository.findByTitleIgnoreCaseContaining(title, pageable).map(problemMapper::toProblemResponse);
 
         return resultPaginationMapper.toResultPaginationResponse(companyPage);
+    }
+
+    public ResultPaginationResponse getCreated(Optional<Integer> page, Optional<Integer> pageSize) {
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+        Page<ProblemResponse> problemPage = problemRepository.findByCreatedByIdAndIsTheory(user.getId(),false, pageable).map(problemMapper::toProblemResponse);
+        return resultPaginationMapper.toResultPaginationResponse(problemPage);
     }
 }

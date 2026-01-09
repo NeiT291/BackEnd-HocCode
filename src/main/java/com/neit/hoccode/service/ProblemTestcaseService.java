@@ -35,4 +35,10 @@ public class ProblemTestcaseService {
         testcase.setPosition(request.getPosition());
         return problemTestcaseRepository.save(testcase);
     }
+    public void deleteTestcase(Integer id){
+        if(problemTestcaseRepository.findById(id).isPresent()){
+            problemTestcaseRepository.delete(problemTestcaseRepository.getById(id));
+        }
+
+    }
 }

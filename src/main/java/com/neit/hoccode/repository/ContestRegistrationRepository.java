@@ -2,7 +2,10 @@ package com.neit.hoccode.repository;
 
 import com.neit.hoccode.entity.Contest;
 import com.neit.hoccode.entity.ContestRegistration;
+import com.neit.hoccode.entity.CourseEnrollment;
 import com.neit.hoccode.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +16,6 @@ import java.util.Optional;
 public interface ContestRegistrationRepository extends JpaRepository<ContestRegistration, Integer> {
     ContestRegistration findByUserAndContest(User user, Contest contest);
     List<ContestRegistration> findByContest(Contest contest);
+
+    Page<ContestRegistration> findByUserId(String userId, Pageable pageable);
 }

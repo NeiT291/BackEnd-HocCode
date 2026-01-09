@@ -14,4 +14,6 @@ import java.util.Optional;
 public interface ContestRepository extends JpaRepository<Contest, Integer> {
     Optional<Contest> getBySlug(String slug);
     Page<Contest> findByTitleIgnoreCaseContaining(String title, Pageable pageable);
+
+    Page<Contest> findByCreatedById(String id, Pageable pageable);
 }

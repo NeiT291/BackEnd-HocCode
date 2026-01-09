@@ -3,9 +3,11 @@ package com.neit.hoccode.service;
 import com.neit.hoccode.dto.request.ClassRequest;
 import com.neit.hoccode.dto.response.ClassResponse;
 import com.neit.hoccode.dto.response.ContestResponse;
+import com.neit.hoccode.dto.response.CourseResponse;
 import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.entity.Class;
 import com.neit.hoccode.entity.ClassEnrollment;
+import com.neit.hoccode.entity.CourseEnrollment;
 import com.neit.hoccode.entity.User;
 import com.neit.hoccode.exception.AppException;
 import com.neit.hoccode.exception.ErrorCode;
@@ -114,5 +116,27 @@ public class ClassService {
         Page<ClassResponse> companyPage = classRepository.findByTitleIgnoreCaseContaining(title, pageable).map(classMapper::toClassResponse);
 
         return resultPaginationMapper.toResultPaginationResponse(companyPage);
+    }
+
+    public ResultPaginationResponse getCreated(Optional<Integer> page, Optional<Integer> pageSize) {
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+        Page<ClassResponse> coursePage = classRepository.findByOwnerId(user.getId(), pageable).map(classMapper::toClassResponse);
+        return resultPaginationMapper.toResultPaginationResponse(coursePage);
+    }
+    public ResultPaginationResponse getJoined(Optional<Integer> page, Optional<Integer> pageSize){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+        Page<ClassEnrollment> classEnrollments = classEnrollmentRepository.findByUserId(user.getId(), pageable);
+        Page<ClassResponse> classPage = classEnrollments.map(ClassEnrollment::getClassRoom).map(classMapper::toClassResponse);
+        return resultPaginationMapper.toResultPaginationResponse(classPage);
     }
 }

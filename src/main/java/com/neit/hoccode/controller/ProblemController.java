@@ -76,4 +76,13 @@ public class ProblemController {
         response.setData(problemService.getByTitle(title, page, pageSize));
         return response;
     }
+    @DeleteMapping("/delete-testcase")
+    public ApiResponse<Void> deleteTestcase(@RequestParam Integer id){
+        problemTestcaseService.deleteTestcase(id);
+        return ApiResponse.<Void>builder().build();
+    }
+    @GetMapping("/get-created")
+    public ApiResponse<ResultPaginationResponse> getCreated(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
+        return ApiResponse.<ResultPaginationResponse>builder().data(problemService.getCreated(page, pageSize)).build();
+    }
 }

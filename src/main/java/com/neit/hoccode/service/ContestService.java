@@ -1,14 +1,8 @@
 package com.neit.hoccode.service;
 
 import com.neit.hoccode.dto.request.ContestRequest;
-import com.neit.hoccode.dto.response.ContestResponse;
-import com.neit.hoccode.dto.response.CourseResponse;
-import com.neit.hoccode.dto.response.ResultPaginationResponse;
-import com.neit.hoccode.dto.response.UserResponse;
-import com.neit.hoccode.entity.Contest;
-import com.neit.hoccode.entity.ContestRegistration;
-import com.neit.hoccode.entity.Course;
-import com.neit.hoccode.entity.User;
+import com.neit.hoccode.dto.response.*;
+import com.neit.hoccode.entity.*;
 import com.neit.hoccode.exception.AppException;
 import com.neit.hoccode.exception.ErrorCode;
 import com.neit.hoccode.mapper.ContestMapper;
@@ -133,5 +127,27 @@ public class ContestService {
         }
 
         return null;
+    }
+
+    public ResultPaginationResponse getCreated(Optional<Integer> page, Optional<Integer> pageSize) {
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+        Page<ContestResponse> contestPage = contestRepository.findByCreatedById(user.getId(), pageable).map(contestMapper::toContestResponse);
+        return resultPaginationMapper.toResultPaginationResponse(contestPage);
+    }
+    public ResultPaginationResponse getJoined(Optional<Integer> page, Optional<Integer> pageSize){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
+        Page<ContestRegistration> contestRegistrations = contestRegistrationRepository.findByUserId(user.getId(), pageable);
+        Page<ContestResponse> contestPage = contestRegistrations.map(ContestRegistration::getContest).map(contestMapper::toContestResponse);
+        return resultPaginationMapper.toResultPaginationResponse(contestPage);
     }
 }
