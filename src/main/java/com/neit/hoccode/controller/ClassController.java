@@ -63,4 +63,8 @@ public class ClassController {
     public ApiResponse<ResultPaginationResponse> getCourseJoined(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
         return ApiResponse.<ResultPaginationResponse>builder().data(classService.getJoined(page, pageSize)).build();
     }
+    @DeleteMapping("/delete-class")
+    public ApiResponse<Void> deleteClass(@RequestParam Integer id){
+        return ApiResponse.<Void>builder().build();
+    }
 }

@@ -26,10 +26,7 @@ public class CourseController {
         this.courseService = courseService;
     }
 //  =========== API COURSE ===================
-    @Operation(
-            summary = "Thêm khóa học",
-            description = "API trả về thông tin khóa học đã thêm"
-    )
+
     @PostMapping("/add")
     public ApiResponse<CourseResponse> addCourse(@RequestBody CourseRequest request){
         return ApiResponse.<CourseResponse>builder().data(courseService.addCourse(request)).build();
@@ -38,18 +35,10 @@ public class CourseController {
     public ApiResponse<Void> setThumbnail(@RequestParam Integer courseId,@RequestParam("thumbnail") MultipartFile thumbnail){
         return ApiResponse.<Void>builder().data(courseService.setThumbnail(courseId, thumbnail)).build();
     }
-    @Operation(
-            summary = "Sửa thông tin khóa học",
-            description = "API trả về thông tin khóa học đã sửa"
-    )
     @PutMapping("/modify")
     public ApiResponse<CourseResponse> modifyCourse(@RequestBody CourseRequest request){
         return ApiResponse.<CourseResponse>builder().data(courseService.modifyCourse(request)).build();
     }
-    @Operation(
-            summary = "Lấy thông tin khóa học bằng slug",
-            description = "API trả về thông tin khóa học theo slug"
-    )
     @GetMapping("/get-by-id")
     public ApiResponse<CourseResponse> getCourseById(@RequestParam Integer id){
         return ApiResponse.<CourseResponse>builder().data(courseService.getCourseById(id)).build();
@@ -91,5 +80,9 @@ public class CourseController {
     @GetMapping("/get-course-joined")
     public ApiResponse<ResultPaginationResponse> getCourseJoined(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
         return ApiResponse.<ResultPaginationResponse>builder().data(courseService.getCourseJoined(page, pageSize)).build();
+    }
+    @DeleteMapping("/delete-course")
+    public ApiResponse<Void> deleteCourse(@RequestParam Integer id){
+        return ApiResponse.<Void>builder().build();
     }
 }

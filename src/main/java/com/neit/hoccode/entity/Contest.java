@@ -24,7 +24,6 @@ public class Contest {
     @Column(columnDefinition = "text", nullable = false)
     private String title;
 
-    @Column(unique = true)
     private String slug;
 
     @Column(columnDefinition = "text")

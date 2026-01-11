@@ -65,4 +65,17 @@ public class ContestController {
     public ApiResponse<ResultPaginationResponse> getCourseJoined(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
         return ApiResponse.<ResultPaginationResponse>builder().data(contestService.getJoined(page, pageSize)).build();
     }
+    @DeleteMapping("/delete-contest")
+    public ApiResponse<Void> deleteContest(@RequestParam Integer id){
+
+        return ApiResponse.<Void>builder().build();
+    }
+    @GetMapping("/get-by-id")
+    public ApiResponse<ContestResponse> getById(@RequestParam Integer id){
+        return ApiResponse.<ContestResponse>builder().data(contestService.getById(id)).build();
+    }
+    @GetMapping("/is-join")
+    public ApiResponse<ContestRegistration> isJoined(@RequestParam Integer id){
+        return ApiResponse.<ContestRegistration>builder().data(contestService.isJoined(id)).build();
+    }
 }

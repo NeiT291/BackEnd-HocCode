@@ -16,6 +16,6 @@ import java.util.Optional;
 public interface ContestRegistrationRepository extends JpaRepository<ContestRegistration, Integer> {
     ContestRegistration findByUserAndContest(User user, Contest contest);
     List<ContestRegistration> findByContest(Contest contest);
-
+    ContestRegistration findByContestIdAndUserId(int contestId, String userId);
     Page<ContestRegistration> findByUserId(String userId, Pageable pageable);
 }

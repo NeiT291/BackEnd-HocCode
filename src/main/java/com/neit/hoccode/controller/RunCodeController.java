@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/run-code")
 @SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Run Code API")
 public class RunCodeController {
     private final DockerCodeRunnerService dockerCodeRunnerService;
 

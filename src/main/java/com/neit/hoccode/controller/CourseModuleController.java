@@ -34,4 +34,9 @@ public class CourseModuleController {
     public ApiResponse<List<CourseModuleResponse>> modifyCourseModule(@RequestParam Integer course_id){
         return ApiResponse.<List<CourseModuleResponse>>builder().data(courseModuleService.getByCourseId(course_id)).build();
     }
+    @DeleteMapping("/delete-module")
+    public ApiResponse<Void> deleteModule(@RequestParam Integer id){
+
+        return ApiResponse.<Void>builder().build();
+    }
 }

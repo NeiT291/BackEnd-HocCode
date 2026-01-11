@@ -45,9 +45,6 @@ public class ContestService {
 
     public ContestResponse add(ContestRequest request) {
         Contest contest = contestMapper.toContest(request);
-        if(contestRepository.getBySlug(request.getSlug()).isPresent()){
-            throw new AppException(ErrorCode.CONTEST_SLUG_EXITED);
-        }
         User user = userRepository.findByUsername(SecurityContextHolder
                         .getContext()
                         .getAuthentication()
@@ -56,7 +53,6 @@ public class ContestService {
         contest.setCreatedAt(LocalDateTime.now());
         contest.setIsPublic(true);
         contest.setCreatedBy(user);
-
         return contestMapper.toContestResponse(contestRepository.save(contest));
     }
     public ContestResponse modify(ContestRequest request) {
@@ -149,5 +145,18 @@ public class ContestService {
         Page<ContestRegistration> contestRegistrations = contestRegistrationRepository.findByUserId(user.getId(), pageable);
         Page<ContestResponse> contestPage = contestRegistrations.map(ContestRegistration::getContest).map(contestMapper::toContestResponse);
         return resultPaginationMapper.toResultPaginationResponse(contestPage);
+    }
+    public ContestResponse getById(Integer id) {
+        return contestMapper.toContestResponse(contestRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CONTEST_NOT_FOUND)));
+    }
+
+    public ContestRegistration isJoined(Integer id) {
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Contest contest = contestRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.CONTEST_NOT_FOUND));
+        return contestRegistrationRepository.findByContestIdAndUserId(contest.getId(), user.getId());
     }
 }
