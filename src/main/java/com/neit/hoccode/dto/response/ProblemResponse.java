@@ -26,5 +26,6 @@ public class ProblemResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Boolean isTheory;
+    private Integer position;
     private List<ProblemTestcase> testcases = new ArrayList<>();
 }
