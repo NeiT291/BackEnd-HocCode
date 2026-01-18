@@ -28,4 +28,5 @@ public class ProblemResponse {
     private Boolean isTheory;
     private Integer position;
     private List<ProblemTestcase> testcases = new ArrayList<>();
+    private Boolean isActive;
 }

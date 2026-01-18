@@ -2,14 +2,17 @@ package com.neit.hoccode.service;
 
 import com.neit.hoccode.dto.request.CourseModuleRequest;
 import com.neit.hoccode.dto.response.CourseModuleResponse;
+import com.neit.hoccode.entity.Contest;
 import com.neit.hoccode.entity.Course;
 import com.neit.hoccode.entity.CourseModule;
+import com.neit.hoccode.entity.User;
 import com.neit.hoccode.exception.AppException;
 import com.neit.hoccode.exception.ErrorCode;
 import com.neit.hoccode.mapper.CourseModuleMapper;
 import com.neit.hoccode.repository.CourseModuleRepository;
 import com.neit.hoccode.repository.CourseRepository;
 import com.neit.hoccode.utils.MergeObject;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -48,5 +51,13 @@ public class CourseModuleService {
     public List<CourseModuleResponse> getByCourseId(Integer courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
         return courseModuleRepository.findByCourse(course).stream().map(courseModuleMapper::toCourseModuleResponse).toList();
+    }
+    public void deleteCourseModule(Integer id){
+        if (courseModuleRepository.findById(id).isEmpty()){
+            return;
+        }
+        CourseModule courseModule = courseModuleRepository.getReferenceById(id);
+        courseModule.setIsActive(false);
+        courseModuleRepository.save(courseModule);
     }
 }

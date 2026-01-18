@@ -43,4 +43,7 @@ public class Contest {
     private Boolean isPublic = true;
 
     private LocalDateTime createdAt;
+
+    @Builder.Default
+    private Boolean isActive = true;
 }

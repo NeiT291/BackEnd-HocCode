@@ -5,6 +5,7 @@ import com.neit.hoccode.dto.response.ContestResponse;
 import com.neit.hoccode.dto.response.CourseResponse;
 import com.neit.hoccode.dto.response.ProblemResponse;
 import com.neit.hoccode.dto.response.ResultPaginationResponse;
+import com.neit.hoccode.entity.Course;
 import com.neit.hoccode.entity.Problem;
 import com.neit.hoccode.entity.ProblemTestcase;
 import com.neit.hoccode.entity.User;
@@ -112,5 +113,20 @@ public class ProblemService {
         Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
         Page<ProblemResponse> problemPage = problemRepository.findByCreatedByIdAndIsTheory(user.getId(),false, pageable).map(problemMapper::toProblemResponse);
         return resultPaginationMapper.toResultPaginationResponse(problemPage);
+    }
+    public void deleteProblem(Integer id){
+        if (problemRepository.findById(id).isEmpty()){
+            return;
+        }
+        Problem problem = problemRepository.getReferenceById(id);
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if(problem.getCreatedBy() == user){
+            problem.setIsActive(false);
+            problemRepository.save(problem);
+        }
     }
 }

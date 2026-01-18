@@ -159,4 +159,19 @@ public class ContestService {
         Contest contest = contestRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.CONTEST_NOT_FOUND));
         return contestRegistrationRepository.findByContestIdAndUserId(contest.getId(), user.getId());
     }
+    public void deleteContest(Integer id){
+        if (contestRepository.findById(id).isEmpty()){
+            return;
+        }
+        Contest contest = contestRepository.getReferenceById(id);
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if(contest.getCreatedBy() == user){
+            contest.setIsActive(false);
+            contestRepository.save(contest);
+        }
+    }
 }

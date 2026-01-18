@@ -36,7 +36,7 @@ public class CourseModuleController {
     }
     @DeleteMapping("/delete-module")
     public ApiResponse<Void> deleteModule(@RequestParam Integer id){
-
+        courseModuleService.deleteCourseModule(id);
         return ApiResponse.<Void>builder().build();
     }
 }

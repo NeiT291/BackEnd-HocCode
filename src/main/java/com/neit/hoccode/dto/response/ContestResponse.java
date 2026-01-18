@@ -16,7 +16,9 @@ public class ContestResponse {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private UserResponse createdBy;
+    private Integer totalUserEnroll;
     private List<UserResponse> userEnroll;
     private List<ProblemResponse> problems;
     private LocalDateTime createdAt;
+    private Boolean isActive;
 }

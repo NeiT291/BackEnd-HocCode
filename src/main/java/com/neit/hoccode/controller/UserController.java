@@ -43,4 +43,9 @@ public class UserController {
     public ApiResponse<Void> setThumbnail(@RequestParam("avatar") MultipartFile avatar){
         return ApiResponse.<Void>builder().data(userService.setAvatar(avatar)).build();
     }
+    @DeleteMapping("/deActive")
+    public ApiResponse<Void> deActive(@RequestParam String username){
+        userService.deActiveUser(username);
+        return ApiResponse.<Void>builder().build();
+    }
 }

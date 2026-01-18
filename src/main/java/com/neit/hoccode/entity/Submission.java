@@ -42,4 +42,7 @@ public class Submission {
 
     @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<JudgeResult> judgeResults = new ArrayList<>();
+
+    @Builder.Default
+    private Boolean isActive = true;
 }

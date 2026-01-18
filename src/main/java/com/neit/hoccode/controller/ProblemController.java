@@ -83,7 +83,7 @@ public class ProblemController {
     }
     @DeleteMapping("/delete-problem")
     public ApiResponse<Void> deleteProblem(@RequestParam Integer id){
-
+        problemService.deleteProblem(id);
         return ApiResponse.<Void>builder().build();
     }
     @GetMapping("/get-created")

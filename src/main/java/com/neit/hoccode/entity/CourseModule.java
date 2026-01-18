@@ -32,4 +32,7 @@ public class CourseModule {
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     private List<Problem> problems = new ArrayList<>();
+
+    @Builder.Default
+    private Boolean isActive = true;
 }

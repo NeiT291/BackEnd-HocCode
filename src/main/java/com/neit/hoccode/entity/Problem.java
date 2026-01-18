@@ -67,4 +67,7 @@ public class Problem {
     @JoinColumn(name = "contest_id")
     @JsonIgnore
     private Contest contest;
+
+    @Builder.Default
+    private Boolean isActive = true;
 }

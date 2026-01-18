@@ -4,16 +4,13 @@ import com.neit.hoccode.dto.request.CourseRequest;
 import com.neit.hoccode.dto.response.CourseResponse;
 import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.entity.*;
-import com.neit.hoccode.entity.Class;
 import com.neit.hoccode.exception.AppException;
 import com.neit.hoccode.exception.ErrorCode;
 import com.neit.hoccode.mapper.CourseMapper;
 import com.neit.hoccode.mapper.ResultPaginationMapper;
-import com.neit.hoccode.repository.ClassRepository;
 import com.neit.hoccode.repository.CourseEnrollmentRepository;
 import com.neit.hoccode.repository.CourseRepository;
 import com.neit.hoccode.repository.UserRepository;
-import com.neit.hoccode.utils.MergeObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,16 +30,14 @@ public class CourseService {
     private final UserRepository userRepository;
     private final ResultPaginationMapper resultPaginationMapper;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
-    private final ClassRepository classRepository;
     private final MinioService minioService;
 
-    public CourseService(CourseMapper courseMapper, CourseRepository courseRepository, UserRepository userRepository, ResultPaginationMapper resultPaginationMapper, CourseEnrollmentRepository courseEnrollmentRepository, ClassRepository classRepository, MinioService minioService) {
+    public CourseService(CourseMapper courseMapper, CourseRepository courseRepository, UserRepository userRepository, ResultPaginationMapper resultPaginationMapper, CourseEnrollmentRepository courseEnrollmentRepository, MinioService minioService) {
         this.courseMapper = courseMapper;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.resultPaginationMapper = resultPaginationMapper;
         this.courseEnrollmentRepository = courseEnrollmentRepository;
-        this.classRepository = classRepository;
         this.minioService = minioService;
     }
 
@@ -57,10 +52,6 @@ public class CourseService {
         course.setOwner(user);
         if(request.getIsPublic()==null){
             course.setIsPublic(true);
-        }
-        if(request.getClassId()!=null){
-            Class classRoom = classRepository.findById(request.getClassId()).orElseThrow(()->new AppException(ErrorCode.CLASS_NOT_FOUND));
-            course.setClassRoom(classRoom);
         }
         if(request.getModules()==null){
             return courseMapper.toCourseResponse(courseRepository.save(course));
@@ -182,5 +173,20 @@ public class CourseService {
         Page<CourseEnrollment> courseEnrollments = courseEnrollmentRepository.findByUserId(user.getId(), pageable);
         Page<CourseResponse> coursePage = courseEnrollments.map(CourseEnrollment::getCourse).map(courseMapper::toCourseResponse);
         return resultPaginationMapper.toResultPaginationResponse(coursePage);
+    }
+    public void deleteCourse(Integer id){
+        if (courseRepository.findById(id).isEmpty()){
+            return;
+        }
+        Course course = courseRepository.getReferenceById(id);
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if(course.getOwner() == user){
+            course.setIsActive(false);
+            courseRepository.save(course);
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.neit.hoccode.dto.request.RegisterRequest;
 import com.neit.hoccode.dto.request.UpdateUserRequest;
 import com.neit.hoccode.dto.response.UserResponse;
 import com.neit.hoccode.entity.Contest;
+import com.neit.hoccode.entity.Problem;
 import com.neit.hoccode.entity.Role;
 import com.neit.hoccode.entity.User;
 import com.neit.hoccode.exception.AppException;
@@ -87,5 +88,18 @@ public class UserService {
         }
 
         return null;
+    }
+    public void deActiveUser(String username){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if(Objects.equals(user.getRole().getName(), "ADMIN")){
+            User user1 = userRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            user1.setIsActive(false);
+            userRepository.save(user1);
+        }
     }
 }

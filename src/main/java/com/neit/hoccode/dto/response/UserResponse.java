@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UserResponse {
     private String displayName;
+    private String username;
     private LocalDate dob;
     private String bio;
     private LocalDateTime createdAt;
@@ -25,5 +26,5 @@ public class UserResponse {
     private String address;
     private Role role;
     private String avatarUrl;
-    private boolean isActive;
+    private Boolean isActive;
 }

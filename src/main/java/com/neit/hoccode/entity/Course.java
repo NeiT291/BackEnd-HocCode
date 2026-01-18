@@ -2,8 +2,6 @@ package com.neit.hoccode.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,10 +32,6 @@ public class Course {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @ManyToOne
-    @JoinColumn(name = "class_id")
-    private Class classRoom;
-
     @Builder.Default
     private Boolean isPublic = true;
 
@@ -49,4 +43,6 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<CourseModule> modules = new ArrayList<>();
 
+    @Builder.Default
+    private Boolean isActive = true;
 }

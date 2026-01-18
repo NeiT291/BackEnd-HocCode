@@ -17,4 +17,5 @@ public class CourseModuleResponse {
     private Integer position = 0;
     private LocalDateTime createdAt;
     private List<ProblemResponse> problems = new ArrayList<>();
+    private Boolean isActive;
 }
