@@ -1,5 +1,6 @@
 package com.neit.hoccode.service;
 
+import com.neit.hoccode.dto.request.ChangePasswordRequest;
 import com.neit.hoccode.dto.request.RegisterRequest;
 import com.neit.hoccode.dto.request.UpdateUserRequest;
 import com.neit.hoccode.dto.response.UserResponse;
@@ -101,5 +102,20 @@ public class UserService {
             user1.setIsActive(false);
             userRepository.save(user1);
         }
+    }
+    public UserResponse changePassword(ChangePasswordRequest request){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        boolean isMatch = passwordEncoder.matches(request.getOldPassword(), user.getPassword());
+        if (!isMatch){
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setUpdatedAt(LocalDateTime.now());
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 }

@@ -1,6 +1,7 @@
 package com.neit.hoccode.controller;
 
 import com.neit.hoccode.dto.ApiResponse;
+import com.neit.hoccode.dto.request.ChangePasswordRequest;
 import com.neit.hoccode.dto.request.RegisterRequest;
 import com.neit.hoccode.dto.request.UpdateUserRequest;
 import com.neit.hoccode.dto.response.UserResponse;
@@ -47,5 +48,11 @@ public class UserController {
     public ApiResponse<Void> deActive(@RequestParam String username){
         userService.deActiveUser(username);
         return ApiResponse.<Void>builder().build();
+    }
+    @PostMapping("/change-password")
+    public ApiResponse<UserResponse> changePassword(@RequestBody ChangePasswordRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .data(userService.changePassword(request))
+                .build();
     }
 }

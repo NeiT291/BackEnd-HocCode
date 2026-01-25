@@ -1,14 +1,14 @@
 package com.neit.hoccode.service;
 
 import com.neit.hoccode.dto.request.CourseRequest;
-import com.neit.hoccode.dto.response.CourseResponse;
-import com.neit.hoccode.dto.response.ResultPaginationResponse;
+import com.neit.hoccode.dto.response.*;
 import com.neit.hoccode.entity.*;
 import com.neit.hoccode.exception.AppException;
 import com.neit.hoccode.exception.ErrorCode;
 import com.neit.hoccode.mapper.CourseMapper;
 import com.neit.hoccode.mapper.ResultPaginationMapper;
 import com.neit.hoccode.repository.CourseEnrollmentRepository;
+import com.neit.hoccode.repository.CourseProgressRepository;
 import com.neit.hoccode.repository.CourseRepository;
 import com.neit.hoccode.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -30,14 +32,16 @@ public class CourseService {
     private final UserRepository userRepository;
     private final ResultPaginationMapper resultPaginationMapper;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
+    private final CourseProgressRepository courseProgressRepository;
     private final MinioService minioService;
 
-    public CourseService(CourseMapper courseMapper, CourseRepository courseRepository, UserRepository userRepository, ResultPaginationMapper resultPaginationMapper, CourseEnrollmentRepository courseEnrollmentRepository, MinioService minioService) {
+    public CourseService(CourseMapper courseMapper, CourseRepository courseRepository, UserRepository userRepository, ResultPaginationMapper resultPaginationMapper, CourseEnrollmentRepository courseEnrollmentRepository, CourseProgressRepository courseProgressRepository, MinioService minioService) {
         this.courseMapper = courseMapper;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.resultPaginationMapper = resultPaginationMapper;
         this.courseEnrollmentRepository = courseEnrollmentRepository;
+        this.courseProgressRepository = courseProgressRepository;
         this.minioService = minioService;
     }
 
@@ -107,7 +111,7 @@ public class CourseService {
     }
     public ResultPaginationResponse getAll(Optional<Integer> page, Optional<Integer> pageSize){
         Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
-        Page<CourseResponse> coursePage = courseRepository.findAll(pageable).map(courseMapper::toCourseResponse);
+        Page<CourseResponse> coursePage = courseRepository.findAllByIsActive(pageable, true).map(courseMapper::toCourseResponse);
         return resultPaginationMapper.toResultPaginationResponse(coursePage);
     }
     public ResultPaginationResponse getByTitle(String title, Optional<Integer> page, Optional<Integer> pageSize){
@@ -116,7 +120,7 @@ public class CourseService {
         String[] words = title.split(" ");
         title = String.join(" ", words);
 
-        Page<CourseResponse> coursePage = courseRepository.findByTitleIgnoreCaseContaining(title, pageable).map(courseMapper::toCourseResponse);
+        Page<CourseResponse> coursePage = courseRepository.findByTitleIgnoreCaseContainingAndIsActive(title, pageable, true).map(courseMapper::toCourseResponse);
 
         return resultPaginationMapper.toResultPaginationResponse(coursePage);
     }
@@ -142,7 +146,12 @@ public class CourseService {
     }
 
     public CourseResponse getCourseById(Integer id) {
-        return courseMapper.toCourseResponse(courseRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND)));
+        Course course = courseRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        course.getModules().removeIf(courseModule -> !courseModule.getIsActive());
+        for(CourseModule module : course.getModules()){
+            module.getProblems().removeIf(problem -> !problem.getIsActive());
+        }
+        return courseMapper.toCourseResponse(course);
     }
     public CourseEnrollment isJoin(Integer id){
         User user = userRepository.findByUsername(SecurityContextHolder
@@ -160,7 +169,7 @@ public class CourseService {
                         .getName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
-        Page<CourseResponse> coursePage = courseRepository.findByOwnerId(user.getId(), pageable).map(courseMapper::toCourseResponse);
+        Page<CourseResponse> coursePage = courseRepository.findByOwnerIdAndIsActive(user.getId(),true, pageable).map(courseMapper::toCourseResponse);
         return resultPaginationMapper.toResultPaginationResponse(coursePage);
     }
     public ResultPaginationResponse getCourseJoined(Optional<Integer> page, Optional<Integer> pageSize){
@@ -189,4 +198,27 @@ public class CourseService {
             courseRepository.save(course);
         }
     }
+
+    public List<CourseProgressResponse> getProgress(Integer courseId) {
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Course course = courseRepository.findById(courseId).orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        List<CourseProgress> progresses = courseProgressRepository.findByUserIdAndCourseId(user.getId(), course.getId());
+
+        List<CourseProgressResponse> progressResponses = new ArrayList<>();
+
+        for (CourseProgress progress : progresses){
+            CourseProgressResponse progressResponse = CourseProgressResponse.builder()
+                    .problemId(progress.getProblem().getId())
+                    .status(progress.getStatus().name())
+                    .build();
+            progressResponses.add(progressResponse);
+        }
+        return progressResponses;
+    }
+
+
 }

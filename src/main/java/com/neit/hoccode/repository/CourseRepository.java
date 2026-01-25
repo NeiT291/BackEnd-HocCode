@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface CourseRepository extends JpaRepository<Course, Integer> {
     Optional<Course> findBySlug(String slug);
     Course getBySlug(String slug);
-    Page<Course> findByTitleIgnoreCaseContaining(String title, Pageable pageable);
-    Page<Course> findByOwnerId(String id, Pageable pageable);
+    Page<Course> findByTitleIgnoreCaseContainingAndIsActive(String title, Pageable pageable, Boolean isActive);
+    Page<Course> findByOwnerIdAndIsActive(String id, Boolean isActive, Pageable pageable);
+    Page<Course> findAllByIsActive(Pageable pageable, Boolean isActive);
 }

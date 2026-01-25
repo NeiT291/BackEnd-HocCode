@@ -92,7 +92,7 @@ public class ContestService {
     }
     public ResultPaginationResponse getAll(Optional<Integer> page, Optional<Integer> pageSize){
         Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
-        Page<ContestResponse> contestPage = contestRepository.findAll(pageable).map(contestMapper::toContestResponse);
+        Page<ContestResponse> contestPage = contestRepository.findAllByIsActive(pageable, true).map(contestMapper::toContestResponse);
         return resultPaginationMapper.toResultPaginationResponse(contestPage);
     }
     public ResultPaginationResponse getByTitle(String title, Optional<Integer> page, Optional<Integer> pageSize){
@@ -101,7 +101,7 @@ public class ContestService {
         String[] words = title.split(" ");
         title = String.join(" ", words);
 
-        Page<ContestResponse> companyPage = contestRepository.findByTitleIgnoreCaseContaining(title, pageable).map(contestMapper::toContestResponse);
+        Page<ContestResponse> companyPage = contestRepository.findByTitleIgnoreCaseContainingAndIsActive(title, pageable, true).map(contestMapper::toContestResponse);
 
         return resultPaginationMapper.toResultPaginationResponse(companyPage);
     }
@@ -132,7 +132,7 @@ public class ContestService {
                         .getName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Pageable pageable = resultPaginationMapper.toPageAble(page, pageSize);
-        Page<ContestResponse> contestPage = contestRepository.findByCreatedById(user.getId(), pageable).map(contestMapper::toContestResponse);
+        Page<ContestResponse> contestPage = contestRepository.findByCreatedByIdAndIsActive(user.getId(),true, pageable).map(contestMapper::toContestResponse);
         return resultPaginationMapper.toResultPaginationResponse(contestPage);
     }
     public ResultPaginationResponse getJoined(Optional<Integer> page, Optional<Integer> pageSize){

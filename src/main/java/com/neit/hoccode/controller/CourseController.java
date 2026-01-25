@@ -2,9 +2,12 @@ package com.neit.hoccode.controller;
 
 import com.neit.hoccode.dto.ApiResponse;
 import com.neit.hoccode.dto.request.CourseRequest;
+import com.neit.hoccode.dto.response.CourseProgressResponse;
 import com.neit.hoccode.dto.response.CourseResponse;
 import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.entity.CourseEnrollment;
+import com.neit.hoccode.entity.CourseModule;
+import com.neit.hoccode.service.CourseModuleService;
 import com.neit.hoccode.service.CourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -21,9 +25,11 @@ import java.util.Optional;
 public class CourseController {
 
     private final CourseService courseService;
+    private final CourseModuleService courseModuleService;
 
-    public CourseController(CourseService courseService) {
+    public CourseController(CourseService courseService, CourseModuleService courseModuleService) {
         this.courseService = courseService;
+        this.courseModuleService = courseModuleService;
     }
 //  =========== API COURSE ===================
 
@@ -85,5 +91,14 @@ public class CourseController {
     public ApiResponse<Void> deleteCourse(@RequestParam Integer id){
         courseService.deleteCourse(id);
         return ApiResponse.<Void>builder().build();
+    }
+    @DeleteMapping("/delete-module")
+    public ApiResponse<Void> deleteModule(@RequestParam Integer moduleId){
+        courseModuleService.deleteCourseModule(moduleId);
+        return ApiResponse.<Void>builder().build();
+    }
+    @GetMapping("/get-process")
+    public ApiResponse<List<CourseProgressResponse>> getProgress(@RequestParam Integer courseId){
+        return ApiResponse.<List<CourseProgressResponse>>builder().data(courseService.getProgress(courseId)).build();
     }
 }

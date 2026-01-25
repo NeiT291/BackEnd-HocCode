@@ -6,11 +6,14 @@ import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.dto.response.UserResponse;
 import com.neit.hoccode.dto.response.admin.DashboardResponse;
 import com.neit.hoccode.entity.*;
+import com.neit.hoccode.exception.AppException;
+import com.neit.hoccode.exception.ErrorCode;
 import com.neit.hoccode.mapper.*;
 import com.neit.hoccode.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -46,16 +49,32 @@ public class AdminService {
     }
 
     public DashboardResponse getDashboard(){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         DashboardResponse response = new DashboardResponse();
         response.setTotalCourse(courseRepository.count());
         response.setTotalContest(contestRepository.count());
-        response.setTotalProblem(problemRepository.count());
-        response.setTotalUser(userRepository.count());
+        response.setTotalProblem(problemRepository.countByIsPublic(true));
+        response.setTotalUser(userRepository.count() - 1);
 
         return response;
     }
 //    ================== COURSE =====================
     public ResultPaginationResponse getAllCourse(Optional<Integer> page, Optional<Integer> pageSize, String title, Boolean isActive){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         List<Course> courses = courseRepository.findAll();
         if( title!= null){
             String finalTitle = String.join(" ", title.split(" "));
@@ -80,6 +99,14 @@ public class AdminService {
         return resultPaginationMapper.toResultPaginationResponse(coursePage.map(courseMapper::toCourseResponse));
     }
     public void deleteCourses(List<Integer> listCourseId){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         for (Integer id : listCourseId){
             if (courseRepository.findById(id).isEmpty()){
                 continue;
@@ -90,6 +117,14 @@ public class AdminService {
         }
     }
     public void restoreCourses(List<Integer> listCourseId){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         for (Integer id : listCourseId){
             if (courseRepository.findById(id).isEmpty()){
                 continue;
@@ -102,7 +137,15 @@ public class AdminService {
     //    ================== Problem =====================
 
     public ResultPaginationResponse getAllProblem(Optional<Integer> page, Optional<Integer> pageSize, String title, Boolean isActive){
-        List<Problem> problems = problemRepository.findAll();
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
+        List<Problem> problems = problemRepository.findAllByIsPublic(true);
         if( title!= null){
             String finalTitle = String.join(" ", title.split(" "));
             problems.removeIf( problem ->
@@ -126,6 +169,14 @@ public class AdminService {
         return resultPaginationMapper.toResultPaginationResponse(problemPage.map(problemMapper::toProblemResponse));
     }
     public void deleteProblems(List<Integer> listProblemId){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         for (Integer id : listProblemId){
             if (problemRepository.findById(id).isEmpty()){
                 continue;
@@ -136,6 +187,14 @@ public class AdminService {
         }
     }
     public void restoreProblems(List<Integer> listProblemId){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         for (Integer id : listProblemId){
             if (problemRepository.findById(id).isEmpty()){
                 continue;
@@ -148,6 +207,14 @@ public class AdminService {
     //    ================== Contest =====================
 
     public ResultPaginationResponse getAllContest(Optional<Integer> page, Optional<Integer> pageSize, String title, Boolean isActive){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         List<Contest> contests = contestRepository.findAll();
         if( title!= null){
             String finalTitle = String.join(" ", title.split(" "));
@@ -184,6 +251,14 @@ public class AdminService {
         return resultPaginationMapper.toResultPaginationResponse(contestResponsePage);
     }
     public void deleteContests(List<Integer> listContestId){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         for (Integer id : listContestId){
             if (contestRepository.findById(id).isEmpty()){
                 continue;
@@ -194,6 +269,14 @@ public class AdminService {
         }
     }
     public void restoreContests(List<Integer> listContestId){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         for (Integer id : listContestId){
             if (contestRepository.findById(id).isEmpty()){
                 continue;
@@ -206,6 +289,14 @@ public class AdminService {
     //    ================== User =====================
 
     public ResultPaginationResponse getAllUser(Optional<Integer> page, Optional<Integer> pageSize, String username, Boolean isActive){
+        User user1 = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user1.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         List<User> users = userRepository.findAll();
         users.removeIf( user -> Objects.equals(user.getRole().getName(), "ADMIN"));
         if( username!= null){
@@ -231,6 +322,14 @@ public class AdminService {
         return resultPaginationMapper.toResultPaginationResponse(userPage.map(userMapper::toUserResponse));
     }
     public void deleteUsers(List<String> listUsername){
+        User user1 = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user1.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         for (String username : listUsername){
             if (userRepository.findByUsername(username).isEmpty()){
                 continue;
@@ -241,6 +340,14 @@ public class AdminService {
         }
     }
     public void restoreUsers(List<String> listUsername){
+        User user1 = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!Objects.equals(user1.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         for (String username : listUsername){
             if (userRepository.findByUsername(username).isEmpty()){
                 continue;

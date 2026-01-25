@@ -52,8 +52,7 @@ public class ProblemTestcaseService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         if(testcase.getProblem().getCreatedBy() == user){
-            testcase.setActive(false);
-            problemTestcaseRepository.save(testcase);
+            problemTestcaseRepository.delete(testcase);
         }
     }
 }

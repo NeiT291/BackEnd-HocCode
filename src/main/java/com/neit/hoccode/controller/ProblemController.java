@@ -2,13 +2,11 @@ package com.neit.hoccode.controller;
 
 import com.neit.hoccode.dto.ApiResponse;
 import com.neit.hoccode.dto.request.ProblemRequest;
+import com.neit.hoccode.dto.request.ProblemRunCodeRequest;
 import com.neit.hoccode.dto.request.ProblemTestcaseRequest;
-import com.neit.hoccode.dto.request.SubmissionRequest;
 import com.neit.hoccode.dto.response.ProblemResponse;
+import com.neit.hoccode.dto.response.ProblemRunCodeResponse;
 import com.neit.hoccode.dto.response.ResultPaginationResponse;
-import com.neit.hoccode.entity.CourseModule;
-import com.neit.hoccode.entity.JudgeResult;
-import com.neit.hoccode.entity.Problem;
 import com.neit.hoccode.entity.ProblemTestcase;
 import com.neit.hoccode.service.ProblemService;
 import com.neit.hoccode.service.ProblemTestcaseService;
@@ -17,7 +15,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -63,10 +60,6 @@ public class ProblemController {
     public ApiResponse<ProblemTestcase> modifyTestcase(@RequestBody ProblemTestcaseRequest request){
         return ApiResponse.<ProblemTestcase>builder().data(problemTestcaseService.modify(request)).build();
     }
-    @PostMapping("/submission")
-    public ApiResponse<JudgeResult> submission(@RequestBody SubmissionRequest request){
-        return ApiResponse.<JudgeResult>builder().data(submissionService.submission(request)).build();
-    }
     @GetMapping("/search")
     public ApiResponse<ResultPaginationResponse> getByName(@RequestParam String title,
                                                            @RequestParam("page") Optional<Integer> page,
@@ -89,5 +82,21 @@ public class ProblemController {
     @GetMapping("/get-created")
     public ApiResponse<ResultPaginationResponse> getCreated(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize){
         return ApiResponse.<ResultPaginationResponse>builder().data(problemService.getCreated(page, pageSize)).build();
+    }
+    @PostMapping("/run-test")
+    public ApiResponse<ProblemRunCodeResponse> runTest(@RequestBody ProblemRunCodeRequest request){
+        return ApiResponse.<ProblemRunCodeResponse>builder().data(problemService.runTest(request)).build();
+    }
+    @PostMapping("/submit")
+    public ApiResponse<ProblemRunCodeResponse> submit(@RequestBody ProblemRunCodeRequest request){
+        return ApiResponse.<ProblemRunCodeResponse>builder().data(problemService.submitCode(request)).build();
+    }
+    @GetMapping("/get-dones")
+    public ApiResponse<ResultPaginationResponse> getDone(@RequestParam Optional<Integer> page, @RequestParam Optional<Integer> pageSize, @RequestParam(required = false) String difficulty){
+        return ApiResponse.<ResultPaginationResponse>builder().data(problemService.getListDone(page, pageSize, difficulty)).build();
+    }
+    @GetMapping("/isDone")
+    public ApiResponse<Boolean> isDone(@RequestParam Integer problemId){
+        return ApiResponse.<Boolean>builder().data(problemService.isDone(problemId)).build();
     }
 }

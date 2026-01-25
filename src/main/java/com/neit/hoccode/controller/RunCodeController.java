@@ -1,29 +1,29 @@
 package com.neit.hoccode.controller;
 
 import com.neit.hoccode.dto.ApiResponse;
-import com.neit.hoccode.dto.request.RunRequest;
+import com.neit.hoccode.dto.request.ProblemRunCodeRequest;
+import com.neit.hoccode.dto.response.RunCodeResponse;
 import com.neit.hoccode.dto.response.RunResult;
-import com.neit.hoccode.service.DockerCodeRunnerService;
+import com.neit.hoccode.service.RunCodeService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/run-code")
-@SecurityRequirement(name = "bearerAuth")
-@Tag(name = "Run Code API")
+@RequiredArgsConstructor
 public class RunCodeController {
-    private final DockerCodeRunnerService dockerCodeRunnerService;
 
-    public RunCodeController(DockerCodeRunnerService dockerCodeRunnerService) {
-        this.dockerCodeRunnerService = dockerCodeRunnerService;
-    }
+    private final RunCodeService runCodeService;
 
     @PostMapping
-    public ApiResponse<RunResult> runCode(@RequestBody RunRequest request){
-        RunResult runResult = dockerCodeRunnerService.run(request.getLanguage(),request.getCode());
-        return ApiResponse.<RunResult>builder()
-                .data(runResult)
-                .build();
+    public ApiResponse<RunCodeResponse> run(@RequestBody ProblemRunCodeRequest request) {
+        return ApiResponse.<RunCodeResponse>builder().data(runCodeService.runApiTest(
+                request.getLanguageId(),
+                request.getSourceCode(),
+                request.getInput()
+        )).build();
     }
 }
+

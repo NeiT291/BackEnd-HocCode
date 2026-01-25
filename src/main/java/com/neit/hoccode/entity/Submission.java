@@ -25,6 +25,9 @@ public class Submission {
     @JoinColumn(name = "problem_id", nullable = false)
     private Problem problem;
 
+    @Column(nullable = false)
+    private Integer languageId;
+
     @Column(columnDefinition = "text", nullable = false)
     private String language;
 
@@ -35,13 +38,6 @@ public class Submission {
 
     @Column(length = 20)
     private String verdict;
-
-    private Integer totalTimeMs;
-
-    private Integer totalMemoryKb;
-
-    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<JudgeResult> judgeResults = new ArrayList<>();
 
     @Builder.Default
     private Boolean isActive = true;

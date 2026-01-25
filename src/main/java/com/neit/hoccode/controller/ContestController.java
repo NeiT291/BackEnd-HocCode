@@ -2,15 +2,18 @@ package com.neit.hoccode.controller;
 
 import com.neit.hoccode.dto.ApiResponse;
 import com.neit.hoccode.dto.request.ContestRequest;
+import com.neit.hoccode.dto.response.ContestRankingResponse;
 import com.neit.hoccode.dto.response.ContestResponse;
 import com.neit.hoccode.dto.response.ResultPaginationResponse;
 import com.neit.hoccode.entity.ContestRegistration;
+import com.neit.hoccode.service.ContestRankingService;
 import com.neit.hoccode.service.ContestService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -19,9 +22,11 @@ import java.util.Optional;
 @Tag(name = "Contest API", description = "CRUD cuộc thi")
 public class ContestController {
     private final ContestService contestService;
+    private final ContestRankingService contestRankingService;
 
-    public ContestController(ContestService contestService) {
+    public ContestController(ContestService contestService, ContestRankingService contestRankingService) {
         this.contestService = contestService;
+        this.contestRankingService = contestRankingService;
     }
 
     @PostMapping("/add")
@@ -77,5 +82,14 @@ public class ContestController {
     public ApiResponse<Void> deleteContest(@RequestParam Integer id){
         contestService.deleteContest(id);
         return ApiResponse.<Void>builder().build();
+    }
+    @GetMapping("/ranking")
+    public ApiResponse<ResultPaginationResponse> getRanking(
+            @RequestParam Optional<Integer> page,
+            @RequestParam Optional<Integer> pageSize,
+            @RequestParam Integer contestId) {
+
+        return ApiResponse.<ResultPaginationResponse>builder()
+                .data(contestRankingService.getContestRanking(page,pageSize,contestId)).build();
     }
 }

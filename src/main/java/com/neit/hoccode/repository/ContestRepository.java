@@ -11,7 +11,8 @@ import java.util.Optional;
 @Repository
 public interface ContestRepository extends JpaRepository<Contest, Integer> {
     Optional<Contest> getBySlug(String slug);
-    Page<Contest> findByTitleIgnoreCaseContaining(String title, Pageable pageable);
+    Page<Contest> findByTitleIgnoreCaseContainingAndIsActive(String title, Pageable pageable, Boolean isActive);
+    Page<Contest> findAllByIsActive(Pageable pageable, Boolean isActive);
 
-    Page<Contest> findByCreatedById(String id, Pageable pageable);
+    Page<Contest> findByCreatedByIdAndIsActive(String id,Boolean isActive, Pageable pageable);
 }

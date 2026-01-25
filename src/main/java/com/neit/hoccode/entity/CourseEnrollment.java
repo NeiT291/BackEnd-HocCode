@@ -27,7 +27,4 @@ public class CourseEnrollment {
     private User user;
 
     private LocalDateTime enrolledAt;
-
-    @Column(columnDefinition = "json")
-    private String progress;
 }

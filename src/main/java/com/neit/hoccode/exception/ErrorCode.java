@@ -32,6 +32,8 @@ public enum ErrorCode {
     CLASS_CODE_EXIST(1018, "Class code exist", HttpStatus.BAD_REQUEST),
     CONTEST_SLUG_EXITED(1018, "Contest slug exist", HttpStatus.BAD_REQUEST),
     CONTEST_NOT_FOUND(1018, "Contest not found", HttpStatus.NOT_FOUND),
+    PROBLEM_NOT_COMPLETED(1019, "Problem not complete", HttpStatus.BAD_REQUEST),
+    DO_NOT_HAVE_PERMISSION(1020, "Don't have permission", HttpStatus.BAD_REQUEST),
     ;
     private int code;
     private String message;
