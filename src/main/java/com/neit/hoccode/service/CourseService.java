@@ -70,8 +70,15 @@ public class CourseService {
         return courseMapper.toCourseResponse(courseRepository.save(course));
     }
     public CourseResponse modifyCourse(CourseRequest request) {
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Course course = courseRepository.findById(request.getId()).orElseThrow(()-> new AppException(ErrorCode.COURSE_NOT_FOUND));
-
+        if(course.getOwner() != user && !Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         course.setTitle(request.getTitle());
         course.setSlug(request.getSlug());
         course.setIsPublic(request.getIsPublic());

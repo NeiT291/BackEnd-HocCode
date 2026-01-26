@@ -147,7 +147,9 @@ public class ContestService {
         return resultPaginationMapper.toResultPaginationResponse(contestPage);
     }
     public ContestResponse getById(Integer id) {
-        return contestMapper.toContestResponse(contestRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CONTEST_NOT_FOUND)));
+        Contest contest = contestRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CONTEST_NOT_FOUND));
+        contest.getProblems().removeIf(problem -> !problem.getIsActive());
+        return contestMapper.toContestResponse(contest);
     }
 
     public ContestRegistration isJoined(Integer id) {

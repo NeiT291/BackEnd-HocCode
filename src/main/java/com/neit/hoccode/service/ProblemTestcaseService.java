@@ -13,6 +13,8 @@ import com.neit.hoccode.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class ProblemTestcaseService {
     private final ProblemRepository problemRepository;
@@ -27,16 +29,36 @@ public class ProblemTestcaseService {
     }
 
     public ProblemTestcase add(ProblemTestcaseRequest request){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         Problem problem = problemRepository.findById(request.getProblemId()).orElseThrow(()->new AppException(ErrorCode.PROBLEM_NOT_FOUND));
         ProblemTestcase testcase = problemTestcaseMapper.toProblemTestcase(request);
         testcase.setProblem(problem);
+
+        if(problem.getCreatedBy() != user && !Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         return problemTestcaseRepository.save(testcase);
     }
     public ProblemTestcase modify(ProblemTestcaseRequest request){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         ProblemTestcase testcase = problemTestcaseRepository.findById(request.getId()).orElseThrow(()-> new AppException(ErrorCode.TESTCASE_NOT_FOUND));
         testcase.setInput(request.getInput());
         testcase.setExpectedOutput(request.getExpectedOutput());
         testcase.setPosition(request.getPosition());
+
+        if(testcase.getProblem().getCreatedBy() != user && !Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         return problemTestcaseRepository.save(testcase);
     }
     public void deleteTestcase(Integer id){
@@ -51,8 +73,9 @@ public class ProblemTestcaseService {
                         .getName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        if(testcase.getProblem().getCreatedBy() == user){
-            problemTestcaseRepository.delete(testcase);
+        if(testcase.getProblem().getCreatedBy() != user && !Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
         }
+        problemTestcaseRepository.delete(testcase);
     }
 }

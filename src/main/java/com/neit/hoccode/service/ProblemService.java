@@ -70,9 +70,18 @@ public class ProblemService {
         for (ProblemTestcase testcase : problem.getTestcases()){
             testcase.setProblem(problem);
         }
+        if(problem.getCreatedBy() != user && !Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         return problemMapper.toProblemResponse(problemRepository.save(problem));
     }
     public ProblemResponse modifyProblem(ProblemRequest request){
+        User user = userRepository.findByUsername(SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         Problem problem = problemRepository.findById(request.getId()).orElseThrow(()->new AppException(ErrorCode.PROBLEM_NOT_FOUND));
         if(request.getMemoryLimitKb() != null && request.getMemoryLimitKb() > 256000){
             request.setMemoryLimitKb(256000);
@@ -83,9 +92,14 @@ public class ProblemService {
         MergeObject.mergeIgnoreNull(problemMapper.toProblem(request), problem);
 
         for (ProblemTestcase testcase: request.getTestcases()){
+            if(testcase.getId() == -1){
+                testcase.setId(null);
+            }
             testcase.setProblem(problem);
         }
-
+        if(problem.getCreatedBy() != user && !Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
+        }
         return problemMapper.toProblemResponse(problemRepository.save(problem));
     }
     public ProblemResponse getById(Integer id) {
@@ -135,10 +149,13 @@ public class ProblemService {
                         .getAuthentication()
                         .getName())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        if(problem.getCreatedBy() == user){
-            problem.setIsActive(false);
-            problemRepository.save(problem);
+        if(problem.getCreatedBy() != user && !Objects.equals(user.getRole().getName(), "ADMIN")){
+            throw new AppException(ErrorCode.DO_NOT_HAVE_PERMISSION);
         }
+
+        problem.setIsActive(false);
+        problemRepository.save(problem);
+
     }
 
     public ProblemRunCodeResponse runTest(ProblemRunCodeRequest request) {

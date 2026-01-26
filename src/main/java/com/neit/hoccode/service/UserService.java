@@ -37,10 +37,17 @@ public class UserService {
     }
 
     public UserResponse register(RegisterRequest request) {
+        if(userRepository.findByUsername(request.getUsername()).isPresent()){
+            throw new AppException(ErrorCode.USERNAME_INVALID);
+        }
+        if(userRepository.findByEmail(request.getEmail()).isPresent()){
+            throw new AppException(ErrorCode.EMAIL_INVALID);
+        }
         if (!Objects.equals(request.getPassword(), request.getRepassword())){
             throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
         }
         User user = userMapper.toUser(request);
+        user.setDisplayName(request.getDisplay_name());
         user.setRole(Role.builder().id(2).build());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
