@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.nio.file.AccessDeniedException;
 import java.text.ParseException;
@@ -54,6 +55,18 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = ErrorCode.REQUEST_FAILED;
         return ResponseEntity
                 .status(errorCode.getStatusCode())
+                .body(ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build());
+    }
+    @ExceptionHandler(value = WebClientResponseException.class)
+    public ResponseEntity<ApiResponse<?>> handlingWebClientException(WebClientResponseException exception) {
+        System.out.println(exception.getMessage());
+        ErrorCode errorCode = ErrorCode.SYNTAX_ERROR;
+        return ResponseEntity
+                .ok()
+//                .status(errorCode.getStatusCode())
                 .body(ApiResponse.builder()
                         .code(errorCode.getCode())
                         .message(errorCode.getMessage())

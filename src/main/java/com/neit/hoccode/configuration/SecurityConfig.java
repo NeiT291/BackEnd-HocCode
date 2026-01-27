@@ -26,6 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
+            "/api/v1/chat/**",
             "/api/v1/admin/**",
             "/api/v1/run-code/**",
             "/api/v1/course/**",

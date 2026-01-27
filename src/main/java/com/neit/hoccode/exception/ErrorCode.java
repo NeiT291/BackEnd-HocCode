@@ -35,6 +35,7 @@ public enum ErrorCode {
     PROBLEM_NOT_COMPLETED(1019, "Problem not complete", HttpStatus.BAD_REQUEST),
     DO_NOT_HAVE_PERMISSION(1020, "Don't have permission", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID(1020, "Email is invalid", HttpStatus.BAD_REQUEST),
+    SYNTAX_ERROR(1021, "Syntax error", HttpStatus.BAD_REQUEST),
     ;
     private int code;
     private String message;
